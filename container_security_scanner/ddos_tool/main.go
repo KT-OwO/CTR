@@ -8,15 +8,15 @@ import (
 	"sync"
 )
 
-// worker sends a single HTTP request and reports the result.
+// worker は単一の HTTP リクエストを送信し、結果を報告
 func worker(wg *sync.WaitGroup, url string, results chan<- int) {
 	defer wg.Done()
 
 	resp, err := http.Get(url)
 	if err != nil {
-		// Print the specific error to stderr for diagnosis
+		// 診断のために特定のエラーを stderr に出力
 		fmt.Fprintf(os.Stderr, "Request Error: %v\n", err)
-		results <- 0 // 0 for failure
+		results <- 0 // 失敗の場合は 0
 		return
 	}
 	defer resp.Body.Close()
@@ -37,17 +37,17 @@ func main() {
 
 	var wg sync.WaitGroup
 	results := make(chan int, *requests)
-	// Use a buffered channel to control concurrency.
-	// This channel acts as a semaphore.
+	// バッファ付きチャネルを使用して同時実行性を制御
+	// このチャネルはセマフォとして機能
 	sem := make(chan struct{}, *concurrency)
 
 	fmt.Printf("Starting DDoS simulation on %s with %d requests and %d concurrency...\n", *url, *requests, *concurrency)
 
 	for i := 0; i < *requests; i++ {
 		wg.Add(1)
-		sem <- struct{}{} // Acquire a spot
+		sem <- struct{}{} // スポットを取得
 		go func() {
-			defer func() { <-sem }() // Release the spot
+			defer func() { <-sem }() // スポットを解放
 			worker(&wg, *url, results)
 		}()
 	}

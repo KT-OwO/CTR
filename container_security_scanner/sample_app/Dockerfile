@@ -1,18 +1,17 @@
-# Use an old, potentially vulnerable base image
+# 古い、潜在的に脆弱なベースイメージを使用
 FROM python:3.8-slim-buster
 
 WORKDIR /app
 
-# Copy application files
+# アプリケーションファイル
 COPY requirements.txt requirements.txt
 COPY app.py app.py
 
-# Install dependencies
+# 依存関係をインストール
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Expose the port the app runs on
+# アプリが実行されるポートを公開
 EXPOSE 5000
 
-# Command to run the application
-# Running as root user by default, which is a security risk
+# アプリケーションを実行するコマンド
 CMD ["python", "app.py"]
